@@ -1,0 +1,35 @@
+<!doctype html>
+<html>
+<body style="font-family:sans-serif;max-width:740px;margin:2rem">
+<h3>Weather Query</h3>
+<div>
+    <label>Sensors (comma, optional): <input id="sensors" placeholder="s1,s2"></label><br/>
+    <label>Metrics:
+        <select id="metrics" multiple size="3">
+            <option>temperature</option><option>humidity</option><option>windSpeed</option>
+        </select>
+    </label><br/>
+    <label>Stat:
+        <select id="stat"><option>avg</option><option>min</option><option>max</option><option>sum</option></select>
+    </label><br/>
+    <label>Start (ISO, optional): <input id="start" placeholder="2025-11-06T00:00:00Z"></label><br/>
+    <label>End (ISO, optional): <input id="end" placeholder="2025-11-13T23:59:59Z"></label><br/>
+    <button id="run">Run</button>
+</div>
+<h4>Result</h4>
+<pre id="out"></pre>
+<script>
+    const api = 'http://localhost:8080/api';
+    document.getElementById('run').onclick = async () => {
+      const sensors = document.getElementById('sensors').value.trim();
+      const metrics = [...document.getElementById('metrics').selectedOptions].map(o=>o.value);
+      const stat = document.getElementById('stat').value;
+      const start = document.getElementById('start').value || null;
+      const end = document.getElementById('end').value || null;
+      const body = { sensors: sensors? sensors.split(',').map(s=>s.trim()) : null, metrics, stat, start, end };
+      const res = await fetch(api+'/query',{ method:'POST', headers:{'content-type':'application/json'}, body: JSON.stringify(body) });
+      document.getElementById('out').textContent = JSON.stringify(await res.json(), null, 2);
+    };
+</script>
+</body>
+</html>
